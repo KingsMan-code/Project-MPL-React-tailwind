@@ -4,6 +4,7 @@ import { getAuth } from "firebase/auth";
 import { firebase } from "../../config/firebase";
 import { Link, Navigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import Cookies from "js-cookie";
 
 interface RootState {
   usuarioEmail: string; // substitua pelo tipo real do seu estado
@@ -27,6 +28,9 @@ export const Login = () => {
     try {
       await signInWithEmailAndPassword(formData.email, formData.password);
       setMsgTipo("sucesso");
+      // Define os cookies quando o login é bem-sucedido
+      Cookies.set("usuarioLogado", "1", { expires: 1 }); // Expira em 1 dia
+      Cookies.set("usuarioEmail", formData.email, { expires: 1 }); // Expira em 1 dia
       setTimeout(() => {
         dispatch({ type: "LOG_IN", usuarioEmail: formData.email });
       }, 2000);
@@ -147,6 +151,14 @@ export const Login = () => {
                   Esqueceu sua Senha?{" "}
                   <Link to="/recuperarSenha" className="text-blue-500">
                     Recuperar Senha
+                  </Link>
+                </p>
+              </div>
+              <div className="mt-4 text-center">
+                <p>
+                  Deseja entrar sem login?{" "}
+                  <Link to="/" className="text-blue-500">
+                    Acessar sem Login
                   </Link>
                 </p>
               </div>

@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import ModalEditarProduto from "../modalEditarProdutos"; // Importe o componente ModalEditarProduto
 import ModalExcluirProduto from "../modalExcluirProdutos"; // Importe o componente ModalExcluirProduto
+import Cookies from "js-cookie";
 
 interface Product {
   id: number;
@@ -71,6 +72,8 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
     console.log(getData());
   }, []);
 
+  const isUserLoggedIn = Cookies.get("usuarioLogado") === "1";
+
   return (
     <div>
       <table className="table-auto w-full mt-4">
@@ -86,10 +89,15 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
             <th className="py-2 px-4 border-b">Data de Retirada</th>
             <th className="py-2 px-4 border-b">Tempo de Locação</th>
             <th className="py-2 px-4 border-b">Data de Retorno</th>
-            <th className="py-2 px-4 border-b">Contato</th>
-            <th className="py-2 px-4 border-b">Nome do Cliente</th>
-            <th className="py-2 px-4 border-b">Editar</th>
-            <th className="py-2 px-4 border-b">Deletar</th>
+
+            {isUserLoggedIn && (
+              <>
+                <th className="py-2 px-4 border-b">Contato</th>
+                <th className="py-2 px-4 border-b">Nome do Cliente</th>
+                <th className="py-2 px-4 border-b">Editar</th>
+                <th className="py-2 px-4 border-b">Deletar</th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -105,24 +113,29 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
               <td className="py-2 px-4 border-b">{product.dataRetirada}</td>
               <td className="py-2 px-4 border-b">{product.tempoLocacao}</td>
               <td className="py-2 px-4 border-b">{product.dataRetorno}</td>
-              <td className="py-2 px-4 border-b">{product.contato}</td>
-              <td className="py-2 px-4 border-b">{product.nomeCliente}</td>
-              <td className="py-2 px-4 border-b">
-                <button
-                  onClick={() => handleEditProduct(product)}
-                  className="text-blue-500"
-                >
-                  Editar
-                </button>
-              </td>
-              <td className="py-2 px-4 border-b">
-                <button
-                  onClick={() => handleDeleteProduct(product)}
-                  className="text-red-500"
-                >
-                  Deletar
-                </button>
-              </td>
+
+              {isUserLoggedIn && (
+                <>
+                  <td className="py-2 px-4 border-b">{product.contato}</td>
+                  <td className="py-2 px-4 border-b">{product.nomeCliente}</td>
+                  <td className="py-2 px-4 border-b">
+                    <button
+                      onClick={() => handleEditProduct(product)}
+                      className="text-white bg-blue-500 hover:bg-blue-600 shadow-md hover:shadow-lg transition duration-150 ease-in-out rounded px-4 py-2"
+                    >
+                      Editar
+                    </button>
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    <button
+                      onClick={() => handleDeleteProduct(product)}
+                      className="text-white bg-red-500 hover:bg-red-600 shadow-md hover:shadow-lg transition duration-150 ease-in-out rounded px-4 py-2"
+                    >
+                      Deletar
+                    </button>
+                  </td>
+                </>
+              )}
             </tr>
           ))}
         </tbody>
