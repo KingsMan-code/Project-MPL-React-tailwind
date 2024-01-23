@@ -1,46 +1,60 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { firebase } from "../../config/firebase"; // Importe o objeto firebase
+import { useNavigate } from "react-router-dom";
 
 export const Cadastro = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    senha: '',
-    confirmarSenha: '',
+    nome: "",
+    email: "",
+    senha: "",
+    confirmarSenha: "",
   });
   const [error, setError] = useState<string | null>(null);
 
-  const handleCadastro = () => {
-    // Validação do formulário
+  const [createUserWithEmailAndPassword, user, loading, createError] =
+    useCreateUserWithEmailAndPassword(firebase?.auth);
+
+  const handleCadastro = async () => {
     if (
-      formData.nome === '' ||
-      formData.email === '' ||
-      formData.senha === '' ||
-      formData.confirmarSenha === ''
+      formData.nome === "" ||
+      formData.email === "" ||
+      formData.senha === "" ||
+      formData.confirmarSenha === ""
     ) {
-      setError('Preencha todos os campos.');
+      setError("Preencha todos os campos.");
       return;
     }
 
-    // Validação da senha
     if (formData.senha !== formData.confirmarSenha) {
-      setError('As senhas não coincidem.');
+      setError("As senhas não coincidem.");
       return;
     }
 
-    // Lógica para cadastro (aqui você pode adicionar sua lógica específica)
-
-    // Limpar erros se tudo estiver ok
-    setError(null);
+    try {
+      const response = await createUserWithEmailAndPassword(
+        formData.email,
+        formData.senha
+      );
+      console.log("Usuário criado:", response?.user);
+      setError(null);
+      redirectLogin("/login");
+    } catch (error) {
+      setError("Erro ao criar usuário. Verifique as informações.");
+      console.error("Erro ao criar usuário:", error);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    console.log('Formulário enviado:', formData);
+    console.log("Formulário enviado:", formData);
     handleCadastro();
   };
+
+  const redirectLogin = useNavigate();
 
   return (
     <div className="flex h-screen">
@@ -151,9 +165,7 @@ export const Cadastro = () => {
             </div>
 
             {/* Exibe a mensagem de erro */}
-            {error && (
-              <div className="mb-3 text-red-500 text-sm">{error}</div>
-            )}
+            {error && <div className="mb-3 text-red-500 text-sm">{error}</div>}
 
             {/* Botão de Cadastrar */}
             <button
@@ -167,7 +179,7 @@ export const Cadastro = () => {
           {/* Link para Login */}
           <div className="mt-3 text-center">
             <p>
-              Já tem uma conta?{' '}
+              Já tem uma conta?{" "}
               <a href="/login" className="text-blue-500">
                 Entrar
               </a>
